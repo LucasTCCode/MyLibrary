@@ -4,14 +4,14 @@
 	<div class="card-header bg-success bg-gradient ml-0 py-3">
 		<div class="row">
 			<div class="col-12 text-center">
-				<h2 class="text-black bg-white py-2">Villa List</h2>
+				<h2 class="text-black bg-white py-2">Book library</h2>
 			</div>
 		</div>
 	</div>
 	<div class="card-body border
 		<div class="col-6 offset-6 text-end">
-			<a asp-controller="Villa" asp-action="Create" class="btn btn-secondary">
-				<i class="bg-info bi-plus-circle"></i>Create new Villa
+			<a asp-controller="Book" asp-action="Create" class="btn btn-secondary">
+				<i class="bg-info bi-plus-circle"></i>Add new Book
 			</a>
 		</div>
 
@@ -37,10 +37,10 @@
 						<td>@obj.CurrentPage</td>
 						<td>
 							<div class="w-75 btn-group" role="group">
-								<a asp-action="Update" asp-route-villaId="@obj.Id" class="btn btn-success mx-2">
+								<a asp-action="Update" asp-route-bookId="@obj.Id" class="btn btn-success mx-2">
 									<i class="bg-info bi-pencil-square"></i> Edit
 								</a>
-								<a asp-action="Delete" asp-route-villaId="@obj.Id" class="btn btn-danger mx-2">
+									<a asp-action="Delete" asp-route-bookId="@obj.Id" class="btn btn-danger mx-2">
 									<i class="bg-info bi-trash-fill"></i> Delete
 								</a>
 							</div>

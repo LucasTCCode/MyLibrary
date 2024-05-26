@@ -1,23 +1,24 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MyLibrary.Application.Common.Interfaces;
 using MyLibrary.Domain.Entities;
-using MyLibrary.Infrastructure.Data;
 
 namespace MyLibrary.Web.Controllers
 {
 	public class BookController : Controller
 	{
-		private readonly ApplicationDbContext _db;
+		private readonly IUnitOfWork _unitOfWork;
+		private readonly IWebHostEnvironment _webHostEnvironment;
 
-		public BookController(ApplicationDbContext db)
+		public BookController(IUnitOfWork unitOfWork, IWebHostEnvironment webHostEnvironment)
 		{
-			_db = db;
+			_unitOfWork = unitOfWork;
+			_webHostEnvironment = webHostEnvironment;
 		}
-
 		public IActionResult Index()
 		{
-			var books = _db.Books.ToList();
+			var books = _unitOfWork.Book.GetAll();
 
-			return View();
+			return View(books);
 		}
 
 		//GET
@@ -43,69 +44,65 @@ namespace MyLibrary.Web.Controllers
 
 			if (ModelState.IsValid)
 			{
-				_db.Books.Add(obj);
-				_db.SaveChanges();
+				_unitOfWork.Book.Add(obj);
+				_unitOfWork.Save();
+				TempData["success"] = "The book has been added successfully.";
 				return RedirectToAction(nameof(Index));
 			}
+			TempData["error"] = "The book could not be added.";
 			return View(obj);
 		}
-		public IActionResult Update(int villaId)
+		public IActionResult Update(int bookId)
 		{
-			Book? obj = _db.Books.FirstOrDefault(_ => _.Id == villaId);
+			Book? obj = _unitOfWork.Book.Get(u => u.Id == bookId);
 
 			if (obj == null)
 			{
-				return NotFound();
+				return RedirectToAction("Error", "Home");
 			}
-
-			return View(villaId);
+			return View(obj);
 		}
 
 		[HttpPost]
 		[ValidateAntiForgeryToken]
 		public IActionResult Update(Book obj)
 		{
-			if (obj.CurrentPage > obj.Pages)
-			{
-				ModelState.AddModelError("CurrentPage", "The current page cannot be higher than the amount of pages in the book.");
-			}
-
 			if (ModelState.IsValid && obj.Id > 0)
 			{
-				_db.Books.Update(obj);
-				_db.SaveChanges();
+				_unitOfWork.Book.Update(obj);
+				_unitOfWork.Save();
+				TempData["success"] = "The book has been updated successfully.";
 				return RedirectToAction(nameof(Index));
 			}
+			TempData["error"] = "The book could not be updated.";
 			return View(obj);
 		}
-		public IActionResult Delete(int villaId)
+
+		public IActionResult Delete(int bookId)
 		{
-			Book? obj = _db.Books.FirstOrDefault(_ => _.Id == villaId);
+			Book? obj = _unitOfWork.Book.Get(u => u.Id == bookId);
+
 
 			if (obj == null)
 			{
 				return RedirectToAction("Error", "Home");
 			}
-
-			return View(villaId);
+			return View(obj);
 		}
-
 		[HttpPost]
+		[ValidateAntiForgeryToken]
 		public IActionResult Delete(Book obj)
 		{
-			Book? objFromDb = _db.Books.FirstOrDefault(_ => _.Id == obj.Id);
-
+			Book? objFromDb = _unitOfWork.Book.Get(_ => _.Id == obj.Id);
 			if (objFromDb is not null)
 			{
-				_db.Books.Remove(obj);
-				_db.SaveChanges();
+				_unitOfWork.Book.Remove(objFromDb);
+				_unitOfWork.Save();
 
-				TempData["success"] = "The book has been deleted successfully.";
-
+				TempData["success"] = "The book has been removed successfully.";
 				return RedirectToAction(nameof(Index));
 			}
-
-			TempData["error"] = "The book cannot be deleted.";
+			TempData["error"] = "The book could not be removed.";
 			return View(obj);
 		}
 	}
