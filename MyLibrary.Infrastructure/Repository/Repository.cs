@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MyLibrary.Application.Common.Interface;
+using MyLibrary.Application.Common.Interfaces;
 using MyLibrary.Infrastructure.Data;
 using System;
 using System.Collections.Generic;
